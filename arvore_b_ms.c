@@ -4,7 +4,7 @@
 
 int arqn = 1;
 #define TAM 13
-#define ERROR "arqnotfound-" //Utilizado para retornar nas funções no lugar de NULL
+#define ERROR "arqnotfound-" //Utilizado para retornar nas funÃ§Ãµes no lugar de NULL
 /*#define TEMP1 "arq_temp_in1" //Utilizado no insere
 #define TEMP2 "arq_temp_in2"
 */
@@ -16,11 +16,11 @@ void divisao_arv(int t, char *s, int i, char *no);
 void insere_nao_completo_arv(int t, char *nome, int ch);
 */
 void lerNoC(int t, char *nome); //Printa tudo dentro do arquivo "nome"
-void lerNoS(int t, char *nome); //Printa só as chaves dentro do arquivo "nome"
+void lerNoS(int t, char *nome); //Printa sÃ³ as chaves dentro do arquivo "nome"
 int eFolha(int t, char *no);
 void limpaArq(int t, char *nome); //Reseta o arquivo, e deixa pronto pra ser usado de novo
-int pos_arq(int t, int i); //Retorna a posição do nome do arquivo filho desejado
-void inicializa_arv(int t, char *nome, int raiz); //Função só pra testar inicialização
+int pos_arq(int t, int i); //Retorna a posiÃ§Ã£o do nome do arquivo filho desejado
+void inicializa_arv(int t, char *nome, int raiz); //FunÃ§Ã£o sÃ³ pra testar inicializaÃ§Ã£o
 //********************************************************************************************************
 //********************************************************************************************************
 int main(){
