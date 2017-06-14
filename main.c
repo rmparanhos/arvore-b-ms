@@ -24,7 +24,7 @@ void insere_nao_completo_arv(int t, char *nome, int ch);
 void lerNoC(int t, char *nome); //Printa tudo dentro do arquivo "nome"
 void lerNoS(int t, char *nome); //Printa só as chaves dentro do arquivo "nome"
 int eFolha(int t, char *no);
-void limpaArq(int t, char *nome); //Reseta o arquivo, e deixa pronto pra ser usado de novo
+void limpaArq(char *nome); //Reseta o arquivo, e deixa pronto pra ser usado de novo
 int pos_arq(int t, int i); //Retorna a posição do nome do arquivo filho desejado
 void inicializa_arv(int t, char *nome, int raiz); //Função só pra testar inicialização
 //********************************************************************************************************
@@ -113,17 +113,12 @@ int eFolha(int t, char *no){
     fseek(fp, pos, SEEK_SET);
     char filho[TAM];
 
-    for(i = 0;i < nchaves; i++){
+    for(i = 0;i < nchaves+1; i++){
         fread(&filho, sizeof(char), TAM, fp);
         FILE *ff = fopen(filho, "rb");
         if(ff){
-            int e;
-            fread(&e, sizeof(int), 1, ff);
-            if(e){
-                fclose(ff);
-                return 0;
-            }
             fclose(ff);
+            return 0;
         }
     }
 
@@ -131,17 +126,10 @@ int eFolha(int t, char *no){
     return 1;
 }
 
-void limpaArq(int t, char *nome){
-    FILE *fp = fopen(nome, "wb");
-    if (!fp) exit(1);
-
-    int e = -1, i = 0;
-    fwrite(&i, sizeof(int), 1, fp);
-    for(i = 0; i < (2 * t)-1; i++){
-        fwrite(&e, sizeof(int), 1, fp);
-    }
-
-    fclose(fp);
+void limpaArq(char *nome){
+    FILE *fp = fopen(nome, "rb");
+    if (!fp) return;
+    remove(nome);
 }
 
 int pos_arq(int t, int i){
@@ -481,7 +469,7 @@ void insere_arv(int t, char *raiz, int ch){
         fclose(fp);
         return;
     }else{
-        int i, aux1, aux2;
+        int i;
         fp = fopen( raiz, "rb+");
         if(!fp)exit(1);
         fseek(fp, sizeof(int), SEEK_SET);
