@@ -32,13 +32,13 @@ void inicializa_arv(int t, char *nome, int raiz); //Função só pra testar inic
 
 int main(){
     int t = 2;
-   /* inicializa_arv(t, "raiz.dat", 20); //Raiz
-    lerNoC(t, "raiz.dat");
-    inicializa_arv(t, "arq00001.dat", 10); //Esquerda
-    lerNoC(t, "arq00001.dat");
-    inicializa_arv(t, "arq00002.dat", 33); //Direita
-    lerNoC(t, "arq00002.dat");
-    imprime_arv(t, "raiz.dat", 0);*/
+    /* inicializa_arv(t, "raiz.dat", 20); //Raiz
+     lerNoC(t, "raiz.dat");
+     inicializa_arv(t, "arq00001.dat", 10); //Esquerda
+     lerNoC(t, "arq00001.dat");
+     inicializa_arv(t, "arq00002.dat", 33); //Direita
+     lerNoC(t, "arq00002.dat");
+     imprime_arv(t, "raiz.dat", 0);*/
     insere_arv(2,"arq00000.dat",6); //funciona
     lerNoC(t, "arq00000.dat");
     printf("\n");
@@ -392,23 +392,23 @@ void insere_arv(int t, char *no, int ch){ //no = raiz
  }
 */
 void reorganiza(int t,char* no){
-        FILE *fp =fopen(no,"rb+");
-        if(!fp) exit(1);
-        int vet[(2*t)-1];
-        fseek(fp,sizeof(int),SEEK_SET);
-        fread(&vet,sizeof(int),(2*t)-1,fp);
-        for (int i = 0; i <(2*t)-1 ; ++i) {
-            for (int j = i + 1; j < (2*t)-1; ++j) {
-                if(vet[i]==-1 && vet[j]!=-1){
-                    vet[i] = vet[j];
-                    vet[j] = -1;
-                }
+    FILE *fp =fopen(no,"rb+");
+    if(!fp) exit(1);
+    int vet[(2*t)-1];
+    fseek(fp,sizeof(int),SEEK_SET);
+    fread(&vet,sizeof(int),(2*t)-1,fp);
+    for (int i = 0; i <(2*t)-1 ; ++i) {
+        for (int j = i + 1; j < (2*t)-1; ++j) {
+            if(vet[i]==-1 && vet[j]!=-1){
+                vet[i] = vet[j];
+                vet[j] = -1;
             }
         }
-        fseek(fp,sizeof(int),SEEK_SET);
-        fwrite(&vet,sizeof(int),(2*t)-1,fp);
-        fclose(fp);
     }
+    fseek(fp,sizeof(int),SEEK_SET);
+    fwrite(&vet,sizeof(int),(2*t)-1,fp);
+    fclose(fp);
+}
 
 int descobreMeio(char* no,int ch,int t){
     FILE *fp = fopen(no,"rb");
@@ -438,6 +438,34 @@ int comp(const void * elem1, const void * elem2) {
     return 0;
 }
 
+void divide(int t, char *no){
+    FILE *fp = fopen(no,"rb+");
+    if(!fp);
+    int nchaves;
+    fread(&nchaves, sizeof(int),1,fp);
+    int vet[nchaves];
+    fread(vet,sizeof(int),nchaves,fp);
+    if(0){ //if é raiz
+        //temos uma nova raiz
+        //altura da arvore vai aumentar
+        //arvore precisara ser reestruturada
+    }
+    else{
+        for(int i=0;i>nchaves;i++){
+            if(i == nchaves/2){
+                insere_arv(t,"pai",vet[i]);
+            }
+            else if(i < nchaves){
+                insere_arv(t,"filhoEsquerdaDoPai",vet[i]);
+            }
+            else{
+                insere_arv(t,"filhoDireitaDoPai",vet[i]);
+            }
+        }
+    }
+
+}
+
 void insere_arv(int t, char *raiz, int ch){
     FILE *fp = fopen(raiz, "rb+");
     if(!fp){
@@ -447,8 +475,8 @@ void insere_arv(int t, char *raiz, int ch){
     int nchaves;
     fread(&nchaves, sizeof(int), 1, fp);
     if(nchaves == (t * 2)- 1){
-        //divisao_arv(t, fp);
         fclose(fp);
+        //divisao_arv(t, raiz);
         insere_arv( t, raiz, ch);
         return;
     }
@@ -485,7 +513,7 @@ void insere_arv(int t, char *raiz, int ch){
                 insere_arv( t, no, ch);
                 return;
             }
-            
+
         }
         pos = pos_arq( t, i);
         fseek(fp, pos, SEEK_SET);
