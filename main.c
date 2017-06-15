@@ -16,8 +16,8 @@ void cria_arv(int t, char *nome);
 char *busca_arv(int t, char *no, int ch);
 void imprime_arv(int t, char *no, int andar);
 
-void insere_arv(int t, char *no, int ch);/*
-void divisao_arv(int t, char *s, int i, char *no);
+void insere_arv(int t, char *no, char *pai,int ch);
+void divisao_arv(int t, char *no, char *pai);/*
 void insere_nao_completo_arv(int t, char *nome, int ch);
 */
 
@@ -39,16 +39,30 @@ int main(){
      inicializa_arv(t, "arq00002.dat", 33); //Direita
      lerNoC(t, "arq00002.dat");
      imprime_arv(t, "raiz.dat", 0);*/
-    insere_arv(2,"arq00000.dat",6); //funciona
+    insere_arv(2,"arq00000.dat",NULL,6);
     lerNoC(t, "arq00000.dat");
     printf("\n");
-    insere_arv(2,"arq00002.dat",10); //funciona
+    insere_arv(2,"arq00002.dat",NULL,10);
     lerNoC(t, "arq00000.dat");
     printf("\n");
-    insere_arv(2,"arq00000.dat",15); //funciona
+    insere_arv(2,"arq00000.dat",NULL,15);
     lerNoC(t, "arq00000.dat");
     printf("\n");
-    insere_arv(2,"arq00000.dat", 5);
+    insere_arv(2,"arq00000.dat",NULL, 5);
+    lerNoC(t, "arq00000.dat");
+    printf("\n");
+    lerNoC(t, "arq00001.dat");
+    printf("\n");
+    lerNoC(t, "arq00002.dat");
+    printf("\n");
+    insere_arv(2,"arq00000.dat",NULL, 20);
+    lerNoC(t, "arq00000.dat");
+    printf("\n");
+    lerNoC(t, "arq00001.dat");
+    printf("\n");
+    lerNoC(t, "arq00002.dat");
+    printf("\n");
+    insere_arv(2,"arq00000.dat",NULL, 40);
     lerNoC(t, "arq00000.dat");
     printf("\n");
     lerNoC(t, "arq00001.dat");
@@ -438,35 +452,45 @@ int comp(const void * elem1, const void * elem2) {
     return 0;
 }
 
-void divide(int t, char *no){
+void divide(int t, char *no, char *pai){
     FILE *fp = fopen(no,"rb+");
     if(!fp);
     int nchaves;
     fread(&nchaves, sizeof(int),1,fp);
     int vet[nchaves];
     fread(vet,sizeof(int),nchaves,fp);
-    if(0){ //if é raiz
+    if(0){ //if é raiz ou seja, pai == null
         //temos uma nova raiz
         //altura da arvore vai aumentar
         //arvore precisara ser reestruturada
     }
     else{
-        for(int i=0;i>nchaves;i++){
+        FILE *fpai = fopen(pai,"rb+");
+        int nchavesPai;
+        fread(&nchavesPai,sizeof(int),1,fpai);
+        char filho[TAM];
+        for(int i=0;i<nchaves;i++){
             if(i == nchaves/2){
-                insere_arv(t,"pai",vet[i]);
+                insere_arv(t,pai,NULL,vet[i]); //null precisa ser alterado para o avo
             }
-            else if(i < nchaves){
-                insere_arv(t,"filhoEsquerdaDoPai",vet[i]);
+            else if(i < nchaves){ //filho da esquerda do pai
+                int pos = pos_arq(t,nchavesPai-1);
+                fseek(fpai,pos,SEEK_SET);
+                fread(filho,sizeof(char),TAM,fpai);
+                insere_arv(t,filho,pai,vet[i]);
             }
-            else{
-                insere_arv(t,"filhoDireitaDoPai",vet[i]);
+            else{ //filho da direita do pai
+                int pos = pos_arq(t,nchavesPai);
+                fseek(fpai,pos,SEEK_SET);
+                fread(filho,sizeof(char),TAM,fpai);
+                insere_arv(t,filho,pai,vet[i]);
             }
         }
     }
 
 }
 
-void insere_arv(int t, char *raiz, int ch){
+void insere_arv(int t, char *raiz, char*pai, int ch){
     FILE *fp = fopen(raiz, "rb+");
     if(!fp){
         inicializa_arv(t, raiz, ch);
@@ -476,8 +500,8 @@ void insere_arv(int t, char *raiz, int ch){
     fread(&nchaves, sizeof(int), 1, fp);
     if(nchaves == (t * 2)- 1){
         fclose(fp);
-        //divisao_arv(t, raiz);
-        insere_arv( t, raiz, ch);
+        divide(t, raiz, pai);
+        insere_arv( t, raiz, pai, ch);
         return;
     }
     fclose(fp);
@@ -510,7 +534,7 @@ void insere_arv(int t, char *raiz, int ch){
                 char no[TAM];
                 fread(&no, sizeof(char), TAM, fp);
                 fclose(fp);
-                insere_arv( t, no, ch);
+                insere_arv( t, no, raiz, ch);
                 return;
             }
 
@@ -520,7 +544,7 @@ void insere_arv(int t, char *raiz, int ch){
         char no[TAM];
         fread(&no, sizeof(char), TAM, fp);
         fclose(fp);
-        insere_arv( t, no, ch);
+        insere_arv( t, no, raiz, ch);
         return;
     }
 }
