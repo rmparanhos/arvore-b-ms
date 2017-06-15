@@ -69,6 +69,13 @@ int main(){
     printf("\n");
     lerNoC(t, "arq00002.dat");
     printf("\n");
+    insere_arv(2,"arq00000.dat",NULL, 50); //algum erro
+    lerNoC(t, "arq00000.dat");
+    printf("\n");
+    lerNoC(t, "arq00001.dat");
+    printf("\n");
+    lerNoC(t, "arq00002.dat");
+    printf("\n");
     //insere_arv(2,"arq00000.dat",4); //funciona mas descaralha o nchaves
     //insere_arv(2,"arq00000.dat",5); //descaralha a porra toda
     //lerNoC(t, "arq00000.dat");
@@ -458,35 +465,72 @@ void divide(int t, char *no, char *pai){
     int nchaves;
     fread(&nchaves, sizeof(int),1,fp);
     int vet[nchaves];
+    int aux[nchaves];
+    int zeroChaves = 0;
+    for(int i = 0;i<nchaves;i++){
+        aux[i] = -1;
+    }
     fread(vet,sizeof(int),nchaves,fp);
+    fseek(fp,0,SEEK_SET);
+    fwrite(&zeroChaves,sizeof(int),1,fp);
+    fwrite(aux,sizeof(int),nchaves,fp);
     if(0){ //if é raiz ou seja, pai == null
         //temos uma nova raiz
         //altura da arvore vai aumentar
         //arvore precisara ser reestruturada
     }
     else{
+        fclose(fp);
         FILE *fpai = fopen(pai,"rb+");
         int nchavesPai;
         fread(&nchavesPai,sizeof(int),1,fpai);
         char filho[TAM];
         for(int i=0;i<nchaves;i++){
+            fp = fopen(no,"rb+");
             if(i == nchaves/2){
-                insere_arv(t,pai,NULL,vet[i]); //null precisa ser alterado para o avo
+                if(nchavesPai < 2*t-1){
+                    fclose(fp);
+                    insere_arv_agressivo(t,pai,vet[i]);
+                }
+                else{
+                    insere_arv(t,pai,"avo",vet[i]);// avo precisa ser implementado
+                }
             }
-            else if(i < nchaves){ //filho da esquerda do pai
-                int pos = pos_arq(t,nchavesPai-1);
-                fseek(fpai,pos,SEEK_SET);
-                fread(filho,sizeof(char),TAM,fpai);
-                insere_arv(t,filho,pai,vet[i]);
-            }
-            else{ //filho da direita do pai
+            else if(i < nchaves/2){ //filho da esquerda do pai
                 int pos = pos_arq(t,nchavesPai);
                 fseek(fpai,pos,SEEK_SET);
                 fread(filho,sizeof(char),TAM,fpai);
+                fclose(fp);
+                insere_arv(t,filho,pai,vet[i]);
+            }
+            else{ //filho da direita do pai
+                int pos = pos_arq(t,nchavesPai+1);
+                fseek(fpai,pos,SEEK_SET);
+                fread(filho,sizeof(char),TAM,fpai);
+                fclose(fp);
                 insere_arv(t,filho,pai,vet[i]);
             }
         }
     }
+
+}
+void insere_arv_agressivo(int t,char *raiz,int ch){
+    FILE *fp = fopen(raiz,"rb+");
+    if(!fp) exit(1);
+    int nchaves;
+    fread(&nchaves, sizeof(int), 1, fp);
+    fseek(fp, sizeof(int), SEEK_SET);
+    int vet[nchaves+1];
+    fread(&vet, sizeof(int), nchaves, fp);
+    vet[nchaves] = ch;
+    qsort( vet, nchaves+1, sizeof(int), comp);
+    fseek(fp, sizeof(int), SEEK_SET);
+    fwrite(&vet, sizeof(int), nchaves+1, fp);
+    fseek(fp, 0, SEEK_SET);
+    nchaves++;
+    fwrite(&nchaves, sizeof(int), 1, fp);
+    fclose(fp);
+    return;
 
 }
 
@@ -506,7 +550,7 @@ void insere_arv(int t, char *raiz, char*pai, int ch){
     }
     fclose(fp);
     if(eFolha( t, raiz)){
-        fp = fopen( raiz, "rb+");
+        fp = fopen( raiz, "rb+"); //erra em algum lugar desse else quando insere o 50
         if(!fp)exit(1);
         fseek(fp, sizeof(int), SEEK_SET);
         int vet[nchaves+1];
