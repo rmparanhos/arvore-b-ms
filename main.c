@@ -93,7 +93,7 @@ int main(){
     printf("\n");
     lerNoC(t, "arq00004.dat");
     printf("\n");
-    insere_arv(2,"arq00000.dat",NULL, 9);
+    insere_arv(2,"arq00000.dat",NULL, 9); // nao funciona por causa do preemptive split
     printf("-----------\n");
     lerNoC(t, "arq00000.dat");
     printf("\n");
