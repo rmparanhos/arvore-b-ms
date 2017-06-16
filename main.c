@@ -69,12 +69,41 @@ int main(){
     printf("\n");
     lerNoC(t, "arq00002.dat");
     printf("\n");
-    insere_arv(2,"arq00000.dat",NULL, 50); //algum erro
+    lerNoC(t, "arq00003.dat");
+    printf("\n");
+    insere_arv(2,"arq00000.dat",NULL, 50);
+    printf("-----------\n");
     lerNoC(t, "arq00000.dat");
     printf("\n");
     lerNoC(t, "arq00001.dat");
     printf("\n");
     lerNoC(t, "arq00002.dat");
+    printf("\n");
+    lerNoC(t, "arq00003.dat");
+    printf("\n");
+    insere_arv(2,"arq00000.dat",NULL, 60);
+    printf("-----------\n");
+    lerNoC(t, "arq00000.dat");
+    printf("\n");
+    lerNoC(t, "arq00001.dat");
+    printf("\n");
+    lerNoC(t, "arq00002.dat");
+    printf("\n");
+    lerNoC(t, "arq00003.dat");
+    printf("\n");
+    lerNoC(t, "arq00004.dat");
+    printf("\n");
+    insere_arv(2,"arq00000.dat",NULL, 9);
+    printf("-----------\n");
+    lerNoC(t, "arq00000.dat");
+    printf("\n");
+    lerNoC(t, "arq00001.dat");
+    printf("\n");
+    lerNoC(t, "arq00002.dat");
+    printf("\n");
+    lerNoC(t, "arq00003.dat");
+    printf("\n");
+    lerNoC(t, "arq00004.dat");
     printf("\n");
     //insere_arv(2,"arq00000.dat",4); //funciona mas descaralha o nchaves
     //insere_arv(2,"arq00000.dat",5); //descaralha a porra toda
@@ -545,6 +574,31 @@ void insere_arv(int t, char *raiz, char*pai, int ch){
     if(nchaves == (t * 2)- 1){
         fclose(fp);
         divide(t, raiz, pai);
+        int i;
+        FILE *fpai = fopen(pai, "rb+");
+        if(!fpai)exit(1);
+        fread(&nchaves,sizeof(int),1,fpai);
+        int vet[nchaves], pos;
+        fread(&vet, sizeof(int), nchaves, fpai);
+        for(i = 0; i < nchaves; i++){
+            if(ch < vet[i]){
+                pos = pos_arq(t, i);
+                fseek(fpai, pos, SEEK_SET);
+                char no[TAM];
+                fread(&no, sizeof(char), TAM, fpai);
+                fclose(fpai);
+                insere_arv(t, no, pai, ch);
+                return;
+            }
+
+        }
+        pos = pos_arq(t, i);
+        fseek(fpai, pos, SEEK_SET);
+        char no[TAM];
+        fread(&no, sizeof(char), TAM, fpai);
+        fclose(fpai);
+        insere_arv(t, no, pai, ch);
+        return;
         insere_arv( t, raiz, pai, ch);
         return;
     }
