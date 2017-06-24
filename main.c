@@ -24,6 +24,9 @@ int eFolha(int t, char *no);
 void limpa_arq(char *nome); // reseta o arquivo, e deixa pronto pra ser usado de novo
 int pos_arq(int t, int i); // retorna a posição do nome do arquivo filho desejado
 void inicializa_arv(int t, char *nome, int raiz); // função só pra testar inicialização
+char* busca_pai(int t, char *no); //busca pai e retorna o próprio no caso seja raiz, retorna ERROR se o no não pertence a arvore
+char* busca_pai_aux(int t, char *aux, char *no); //auxiliar
+char* busca_avo(int t, char *no); //busca avo e retorna no caso não tenha avo
 
 
 int main(void) {
@@ -277,6 +280,100 @@ void limpa_arq(char *nome) {
 int pos_arq(int t, int i) {
     int pos = 2*t * sizeof(int);
     return pos + (TAM * i * sizeof(char));
+}
+
+char* busca_pai(int t, char *no){
+	FILE *fsave = fopen(RAIZ, "rb");
+	if(!fsave)exit(1);
+	char raiz[TAM], nome[TAM];
+	fread(&raiz, sizeof(char), TAM, fsave);
+	fclose(fsave);
+	if(!strcmp(raiz, no)){
+		return no;
+	}
+	FILE *fp = fopen(raiz, "rb");
+	if(!fp)exit(1);
+	int pos, nchaves, i;
+	fread(&nchaves, sizeof(int), 1, fp);
+    for(i = 0;i <= nchaves; i++){
+    	pos = pos_arq(t, i);
+        fseek(fp, pos, SEEK_SET);
+    	fread(&nome, sizeof(char), TAM, fp);
+    	if(!strcmp(nome, no)){
+    		fclose(fp);
+    		return raiz;
+    	}
+    }
+    char saida[TAM];
+    for(i = 0;i <= nchaves; i++){
+    	pos = pos_arq(t, i);
+        fseek(fp, pos, SEEK_SET);
+    	fread(&nome, sizeof(char), TAM, fp);
+    	strcpy(saida,busca_pai_aux(t, nome, no));
+    	if(strcmp(saida, ERROR)){
+    		fclose(fp);
+    		return saida;
+    	}
+    }
+    //Isso nunca pode acontecer se no faz parte da arvore
+    return ERROR;
+}
+
+char* busca_pai_aux(int t, char *aux, char *no){
+	FILE *fp = fopen(aux, "rb");
+	if(!fp)return ERROR;
+	int pos, nchaves, i;
+	char nome[TAM];
+	fread(&nchaves, sizeof(int), 1, fp);
+    for(i = 0;i <= nchaves; i++){
+    	pos = pos_arq(t, i);
+        fseek(fp, pos, SEEK_SET);
+    	fread(&nome, sizeof(char), TAM, fp);
+    	if(!strcmp(nome, no)){
+    		fclose(fp);
+    		return aux;
+    	}
+    }
+    char saida[TAM];
+    for(i = 0;i <= nchaves; i++){
+    	pos = pos_arq(t, i);
+        fseek(fp, pos, SEEK_SET);
+    	fread(&nome, sizeof(char), TAM, fp);
+    	strcpy(saida,busca_pai_aux(t, nome, no));
+    	if(strcmp(saida, ERROR)){
+    		fclose(fp);
+    		return saida;
+    	}
+    }
+    return ERROR;
+}
+
+char* busca_avo(int t, char *no){
+	char nome[TAM], saida[TAM];
+	strcpy(nome, busca_pai(t, no));
+	if(!strcmp(nome, ERROR)){
+		//Deu merda
+		return ERROR;
+	}
+	if(!strcmp(nome, no)){
+		//Ele é a raiz e não tem pai;
+		return nome;
+	}else{
+		//Achou o pai!
+		//Agora buscar o pai do pai;
+		//Retorna ele mesmo se não tiver avo e for a raiz;
+		strcpy(saida, busca_pai(t, nome));
+		if(!strcmp(saida, ERROR)){
+			//Se entrar aqui, é pq o no não faz parte da arvore ou tem algum erro em um desses busca pai e avo
+			//retorna o próprio no, indicando que não tem avo
+			//se retornasse o "nome", que é um pai válido, não seria possível dizer se "nome" é avo ou não, fora dessa função
+			//seria preciso usar outro busca_pai;
+			//Lembrar de usar STRCMP com a saida dessa função, para verificar se é um avo ou não
+			return no;
+		}
+		//Achou o avo!
+		return saida;
+	}
 }
 
 // INICIALIZA
