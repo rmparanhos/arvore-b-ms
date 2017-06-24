@@ -345,6 +345,7 @@ char* busca_pai_aux(int t, char *aux, char *no){
     		return saida;
     	}
     }
+    //Isso pode acontecer, significa que não foi encontrado nos filhos de baixo
     return ERROR;
 }
 
@@ -353,7 +354,8 @@ char* busca_avo(int t, char *no){
 	strcpy(nome, busca_pai(t, no));
 	if(!strcmp(nome, ERROR)){
 		//Deu merda
-		return ERROR;
+		//Tem algum erro no busca_pai ou o no não pertence a arvore
+		return no;
 	}
 	if(!strcmp(nome, no)){
 		//Ele é a raiz e não tem pai;
