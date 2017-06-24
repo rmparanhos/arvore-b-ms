@@ -5,6 +5,7 @@
 int arqn = 1;
 #define TAM 13
 #define ERROR "arqnotfound-" // utilizado para retornar nas funções no lugar de NULL
+#define RAIZ "arqsaved.dat"
 
 int comp(const void *elem1, const void *elem2);
 
@@ -26,57 +27,102 @@ void inicializa_arv(int t, char *nome, int raiz); // função só pra testar ini
 
 
 int main(void) {
-    int t = 2;
+    int t, val, boolean;
+    char raiz[TAM];
     /*int x;
     char c;
     char *aux;
     char *nome_raiz = (char*) malloc(sizeof(char) * TAM);
     strcpy(nome_raiz, "aqr00000.dat");
-
-
     while (1) {
         printf("t: ");
         scanf("%d", &t);
         if (t > 1) break;
     }
-
     while (1) {
         printf("I (inserir) / R (retirar) / B (buscar) / P (imprimir) / L (liberar) / S (sair): ");
         scanf(" %c", &c);
-
         if (c == 'S' || c == 's') break;
-
         else if (c == 'I' || c == 'i') {
             printf("Valor: ");
             scanf("%d", &x);
             // insere x
-
         }
-
         else if (c == 'R' || c == 'r') {
             printf("Valor: ");
             scanf("%d", &x);
             // retira x
         }
-
         else if (c == 'B' || c == 'b') {
             printf("Valor: ");
             scanf("%d", &x);
             aux = busca_arv(t, nome_raiz, x);
             lerNoC(t, aux);
         }
-
         else if (c == 'P' || c == 'p') {
             imprime_arv(t, nome_raiz, 0);
         }
-
         else if (c == 'L' || c == 'l') {
             // libera arv
         }
     }
-
     /*****/
-
+    FILE *fp = fopen(RAIZ,"rb");
+    if(!fp){
+    	printf("Arvore nao encontrada\n");
+    	printf("Deseja inicia-la com qual valor de t e qual valor de raiz?\n");
+    	scanf("%d",&t);
+    	scanf("%d",&val);
+    	insere_arv(t,"arq00000.dat",NULL,val);
+    	FILE *fp = fopen(RAIZ,"wb");
+    	if(!fp)exit(1);
+    	strcpy(raiz,"arq00000.dat");
+    	fwrite(&raiz, sizeof(char), TAM, fp);
+    	fwrite(&t, sizeof(int), 1, fp);
+    	fwrite(&arqn, sizeof(int), 1, fp);
+    	fclose(fp);
+    }
+    else{
+    	printf("Arvore encontrada\n");
+    	fread(&raiz, sizeof(char), TAM, fp);
+    	fread(&t, sizeof(int), 1, fp);
+    	fread(&arqn, sizeof(int), 1, fp);
+    	fclose(fp);
+    }
+    while(1){
+    	printf("Digite 1 para inserir na arvore\n");
+    	printf("Digite 2 para imprimir a arvore\n");
+    	printf("Digite 3 para deletar a arvore\n");
+    	printf("Digite qualquer outro valor para sair\n");
+    	printf("Do it: ");
+    	scanf("%d", &boolean);
+    	printf("\n");
+    	if(boolean == 1){
+    		printf("Que valor você deseja inserir? ");
+    		scanf("%d", &val);
+    		printf("\n");
+    		insere_arv(t, raiz, NULL, val);
+    		FILE *f1 = fopen(RAIZ,"rb");
+    		if(!f1)exit(1);
+    		fread(&raiz, sizeof(char), TAM, f1);
+    		fclose(f1);
+    	}else if(boolean == 2){
+    		imprime_arv(t, raiz, 0);
+    	}else if(boolean == 3){
+    		//deleta arvore
+    	}else{
+    		printf("Fechando arquivo e atualizando save\n");
+    		FILE *f2 = fopen(RAIZ,"rb+");
+    		if(!f2)exit(1);
+    		int pos = TAM * sizeof(char);
+    		fseek(f2, pos + sizeof(int), SEEK_SET);
+    		fwrite(&arqn, sizeof(int), 1, f2);
+    		fclose(f2);
+    		printf("Done\n");
+    		break;
+    	}
+    }
+    /*
     insere_arv(2,"arq00000.dat",NULL,6);
     lerNoC(t, "arq00000.dat");
     printf("\n");
@@ -151,10 +197,12 @@ int main(void) {
     //printf("\n");
     //lerNoC(t, "arq00002.dat");
     //printf("\n");*/
-
-    char *nome = (char*) malloc(sizeof(char) * TAM);
+      
+    //Exemplo de uso do Busca e do ERROR
+    /*char *nome = (char*) malloc(sizeof(char) * TAM);
     strcpy(nome, busca_arv(t, "raiz.dat", 44));
     if (strcmp(nome, ERROR)) printf("%s", nome);
+    */
 }
 
 // LER NÓ
@@ -364,14 +412,11 @@ void insere_arv(int t, char *no, int ch) { //no = raiz
 	if (strcmp(ERROR, busca_arv(t, no, ch))) {
         return;
     }
-
 	FILE *fp = fopen(no, "rb+");
-
     if (!fp) {
 		inicializa_arv(t, no, ch);
 		return;
 	}
-
     if (eFolha(t,no)) {
         int nchaves;
         fread(&nchaves,sizeof(int),1,fp);
@@ -528,7 +573,6 @@ void insere_arv(int t, char *no, int ch) { //no = raiz
     }
     qsort(meio,(2*t)-1,sizeof(int),comp);
     return meio[((2*t)-1)/2];
-
 } */
 
 
@@ -632,6 +676,12 @@ char* divide(int t, char *no, char *pai) {
         fclose(fp);
         fclose(fpNovo);
         fclose(fpNovoRaiz);
+
+        FILE *fsave = fopen(RAIZ, "rb+");
+        if(!fsave)exit(1);
+        fwrite(&novaRaiz, sizeof(char), TAM, fsave);
+        fclose(fsave);
+
         return novaRaiz;
     }
     else{
