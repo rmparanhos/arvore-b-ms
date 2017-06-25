@@ -464,21 +464,15 @@ void imprime_arv(int t, char *no, int andar) {
         fseek(fp, pos_arq(t, i), SEEK_SET);
         fread(&filho, sizeof(char), TAM, fp);
         imprime_arv(t, filho, andar+1);
-
-
-
-
     }
     fclose(fp);
     lerNoS(t, no, andar);
-
+    printf("\n");
     fp = fopen(no, "rb");
     if (!fp) return;
-
     fseek(fp, pos_arq(t, i), SEEK_SET);
     fread(&filho, sizeof(char), TAM, fp);
     imprime_arv(t, filho, andar+1);
-
     fclose(fp);
 }
 
@@ -832,6 +826,9 @@ char* divide(int t, char *no, char *pai) {
                 insere_arv(t, filho, pai, vet[i]);
             }
         }
+        char resp[TAM];
+        strcpy(resp,"nope");
+        return resp;
     }
 }
 
@@ -870,7 +867,7 @@ void insere_arv(int t, char *raiz, char*pai, int ch) {
         strcpy(novoPai,divide(t, raiz, pai));
         int i;
         FILE *fpai;
-        if (!novoPai) {
+        if (!strcmp(novoPai,"nope")) {
             fpai = fopen(pai, "rb+");
             if (!fpai) exit(1);
         }
