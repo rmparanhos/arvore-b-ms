@@ -4,7 +4,7 @@
 
 int arqn = 1;
 #define TAM 13
-#define ERROR "arqnotfound-" // utilizado para retornar nas funÃ§Ãµes no lugar de NULL
+#define ERROR "arqnotfound-" // utilizado para retornar nas funções no lugar de NULL
 #define RAIZ "arqsaved.dat"
 
 int comp(const void *elem1, const void *elem2);
@@ -20,57 +20,19 @@ void insere_arv_agressivo(int t, char *raiz, int ch);
 void libera_arv(int t, char *raiz);
 
 void lerNoC(int t, char *nome); // printa tudo dentro do arquivo "nome"
-void lerNoS(int t, char *nome,int andar); // printa sÃ³ as chaves dentro do arquivo "nome"
+void lerNoS(int t, char *nome,int andar); // printa só as chaves dentro do arquivo "nome"
 int eFolha(int t, char *no);
 void limpa_arq(char *nome); // reseta o arquivo, e deixa pronto pra ser usado de novo
-int pos_arq(int t, int i); // retorna a posiÃ§Ã£o do nome do arquivo filho desejado
-void inicializa_arv(int t, char *nome, int raiz); // funÃ§Ã£o sÃ³ pra testar inicializaÃ§Ã£o
-char* busca_pai(int t, char *no); //busca pai e retorna o prÃ³prio no caso seja raiz, retorna ERROR se o no nÃ£o pertence a arvore
+int pos_arq(int t, int i); // retorna a posição do nome do arquivo filho desejado
+void inicializa_arv(int t, char *nome, int raiz); // função só pra testar inicialização
+char* busca_pai(int t, char *no); //busca pai e retorna o próprio no caso seja raiz, retorna ERROR se o no não pertence a arvore
 char* busca_pai_aux(int t, char *aux, char *no); //auxiliar
-char* busca_avo(int t, char *no); //busca avo e retorna no caso nÃ£o tenha avo
+char* busca_avo(int t, char *no); //busca avo e retorna no caso não tenha avo
 
 
 int main(void) {
     int t, val, boolean;
     char raiz[TAM];
-    /*int x;
-    char c;
-    char *aux;
-    char *nome_raiz = (char*) malloc(sizeof(char) * TAM);
-    strcpy(nome_raiz, "aqr00000.dat");
-    while (1) {
-        printf("t: ");
-        scanf("%d", &t);
-        if (t > 1) break;
-    }
-    while (1) {
-        printf("I (inserir) / R (retirar) / B (buscar) / P (imprimir) / L (liberar) / S (sair): ");
-        scanf(" %c", &c);
-        if (c == 'S' || c == 's') break;
-        else if (c == 'I' || c == 'i') {
-            printf("Valor: ");
-            scanf("%d", &x);
-            // insere x
-        }
-        else if (c == 'R' || c == 'r') {
-            printf("Valor: ");
-            scanf("%d", &x);
-            // retira x
-        }
-        else if (c == 'B' || c == 'b') {
-            printf("Valor: ");
-            scanf("%d", &x);
-            aux = busca_arv(t, nome_raiz, x);
-            lerNoC(t, aux);
-        }
-        else if (c == 'P' || c == 'p') {
-            imprime_arv(t, nome_raiz, 0);
-        }
-        else if (c == 'L' || c == 'l') {
-            // libera arv
-        }
-    }
-    /*****/
     FILE *fp = fopen(RAIZ,"rb");
     if(!fp){
         printf("Arvore nao encontrada\n");
@@ -129,10 +91,15 @@ int main(void) {
             printf("\n");
             char no[TAM];
             strcpy(no,busca_arv(t,raiz,val));
-            printf("Valor esta no no %s\n",no);
-            printf("Leitura deste no:\n");
-            lerNoC(t,no);
-            printf("\n");
+            if(strcmp(no, ERROR)){
+            	printf("Valor esta no no %s\n",no);
+                printf("Leitura deste no:\n");
+                lerNoC(t,no);
+                printf("\n");
+			}else{
+				printf("No nao pertence a arvore!\n");
+			}
+            
         }else{
             printf("Fechando arquivo e atualizando save\n");
             FILE *f2 = fopen(RAIZ,"rb+");
@@ -145,59 +112,9 @@ int main(void) {
             break;
         }
     }
-
-   /* insere_arv(2,RAIZ,NULL,6);
-    imprime_arv(2,RAIZ,0);*/
-   /* insere_arv(2,RAIZ,NULL,10);
-    imprime_arv(2,RAIZ,0);
-    insere_arv(2,RAIZ,NULL,15);
-    imprime_arv(2,RAIZ,0);
-    printf("\n---------------\n");
-    insere_arv(2,RAIZ,NULL, 5);
-    lerNoC(t, "arq00000.dat");
-    printf("\n");
-    lerNoC(t, "arq00007.dat");
-    printf("\n");
-    lerNoC(t, "arq00010.dat");
-    printf("\n----------------\n");
-    insere_arv(2,RAIZ,NULL, 20);
-    imprime_arv(2,RAIZ,0);
-    insere_arv(2,RAIZ,NULL, 40);
-    imprime_arv(2,RAIZ,0);
-    insere_arv(2,RAIZ,NULL, 50);
-    printf("-----------\n");
-    imprime_arv(2,RAIZ,0);
-    insere_arv(2,RAIZ,NULL, 60);
-    imprime_arv(2,RAIZ,0);*/
-   /* insere_arv(2,"arq00000.dat",NULL, 9); // nao funciona por causa do preemptive split
-    printf("-----------\n");
-    lerNoC(t, "arq00000.dat");
-    printf("\n");
-    lerNoC(t, "arq00001.dat");
-    printf("\n");
-    lerNoC(t, "arq00002.dat");
-    printf("\n");
-    lerNoC(t, "arq00003.dat");
-    printf("\n");
-    lerNoC(t, "arq00004.dat");
-    printf("\n");
-    //insere_arv(2,"arq00000.dat",4); // funciona mas descaralha o nchaves
-    //insere_arv(2,"arq00000.dat",5); // descaralha a porra toda
-    //lerNoC(t, "arq00000.dat");
-    //printf("\n");
-    //lerNoC(t, "arq00001.dat");
-    //printf("\n");
-    //lerNoC(t, "arq00002.dat");
-    //printf("\n");*/
-
-    //Exemplo de uso do Busca e do ERROR
-    /*char *nome = (char*) malloc(sizeof(char) * TAM);
-    strcpy(nome, busca_arv(t, "raiz.dat", 44));
-    if (strcmp(nome, ERROR)) printf("%s", nome);
-    */
 }
 
-// LER NÃ“
+// LER NÓ
 void lerNoC(int t, char *nome) {
     FILE *fp = fopen(nome, "rb");
     if (!fp) exit(1);
@@ -219,7 +136,7 @@ void lerNoC(int t, char *nome) {
 
 
 
-// LER NÃ“ (SÃ“ AS CHAVES)
+// LER NÓ (SÓ AS CHAVES)
 void lerNoS(int t, char *nome,int andar) {
     FILE *fp = fopen(nome, "rb");
     if (!fp) return;
@@ -271,7 +188,7 @@ void limpa_arq(char *nome) {
     remove(nome);
 }
 
-// POSIÃ‡ÃƒO NO ARQUIVO
+// POSIÇÃO NO ARQUIVO
 int pos_arq(int t, int i) {
     int pos = 2*t * sizeof(int);
     return pos + (TAM * i * sizeof(char));
@@ -340,7 +257,7 @@ char* busca_pai_aux(int t, char *aux, char *no){
             return saida;
         }
     }
-    //Isso pode acontecer, significa que nÃ£o foi encontrado nos filhos de baixo
+    //Isso pode acontecer, significa que não foi encontrado nos filhos de baixo
     return ERROR;
 }
 
@@ -349,23 +266,23 @@ char* busca_avo(int t, char *no){
     strcpy(nome, busca_pai(t, no));
     if(!strcmp(nome, ERROR)){
         //Deu merda
-        //Tem algum erro no busca_pai ou o no nÃ£o pertence a arvore
+        //Tem algum erro no busca_pai ou o no não pertence a arvore
         return no;
     }
     if(!strcmp(nome, no)){
-        //Ele Ã© a raiz e nÃ£o tem pai;
+        //Ele é a raiz e não tem pai;
         return nome;
     }else{
         //Achou o pai!
         //Agora buscar o pai do pai;
-        //Retorna ele mesmo se nÃ£o tiver avo e for a raiz;
+        //Retorna ele mesmo se não tiver avo e for a raiz;
         strcpy(saida, busca_pai(t, nome));
         if(!strcmp(saida, ERROR)){
-            //Se entrar aqui, Ã© pq o no nÃ£o faz parte da arvore ou tem algum erro em um desses busca pai e avo
-            //retorna o prÃ³prio no, indicando que nÃ£o tem avo
-            //se retornasse o "nome", que Ã© um pai vÃ¡lido, nÃ£o seria possÃ­vel dizer se "nome" Ã© avo ou nÃ£o, fora dessa funÃ§Ã£o
+            //Se entrar aqui, é pq o no não faz parte da arvore ou tem algum erro em um desses busca pai e avo
+            //retorna o próprio no, indicando que não tem avo
+            //se retornasse o "nome", que é um pai válido, não seria possível dizer se "nome" é avo ou não, fora dessa função
             //seria preciso usar outro busca_pai;
-            //Lembrar de usar STRCMP com a saida dessa funÃ§Ã£o, para verificar se Ã© um avo ou nÃ£o
+            //Lembrar de usar STRCMP com a saida dessa função, para verificar se é um avo ou não
             return no;
         }
         //Achou o avo!
@@ -476,195 +393,6 @@ void imprime_arv(int t, char *no, int andar) {
     fclose(fp);
 }
 
-/*TAB *Insere(TAB *T, int k, int t) {
-  if (Busca(T,k)) return T;
-  if (!T) {
-    T=Cria(t);
-    T->chave[0] = k;
-    T->nchaves=1;
-    return T;
-  }
-  if (T->nchaves == (2*t)-1) {
-    TAB *S = Cria(t);
-    S->nchaves=0;
-    S->folha = 0;
-    S->filho[0] = T;
-    S = Divisao(S,1,T,t);
-    S = Insere_Nao_Completo(S,k,t);
-    return S;
-  }
-  T = Insere_Nao_Completo(T,k,t);
-  return T;
-}*/
-/*
-void insere_arv(int t, char *no, int ch) { //no = raiz
-	if (strcmp(ERROR, busca_arv(t, no, ch))) {
-        return;
-    }
-	FILE *fp = fopen(no, "rb+");
-    if (!fp) {
-		inicializa_arv(t, no, ch);
-		return;
-	}
-    if (eFolha(t,no)) {
-        int nchaves;
-        fread(&nchaves,sizeof(int),1,fp);
-        if (nchaves + 1 <= (2*t)-1) {
-            nchaves++;
-            int pos = nchaves * sizeof(int);
-            fseek(fp,0,SEEK_SET);
-            fwrite(&nchaves,sizeof(int),1,fp);
-            fseek(fp,pos,SEEK_SET);
-            fwrite(&ch, sizeof(int),1,fp);
-            fclose(fp);
-            return;
-        }
-        else{
-            int meio = descobreMeio(no,ch,t);
-            int aux;
-            int cont=0;
-            while(1) {
-                cont++;
-                fseek(fp, cont * 4, SEEK_SET);
-                fread(&aux, sizeof(int), 1, fp);
-                if (aux == -1) {
-                    fseek(fp,0,SEEK_SET);
-                    int nchaves;
-                    fread(&nchaves,sizeof(int),1,fp);
-                    nchaves++;
-                    fseek(fp,0,SEEK_SET);
-                    fwrite(&nchaves,sizeof(int),1,fp);
-                    fseek(fp, cont * 4, SEEK_SET);
-                    fwrite(&ch, sizeof(int), 1, fp);
-                    break;
-                }
-            }
-            cont = 0;
-            fclose(fp);
-            while(1) {
-                fp = fopen(no,"rb+");
-                cont++;
-                fseek(fp, cont*4, SEEK_SET);
-                fread(&aux, sizeof(int), 1, fp);
-                if (aux < meio) {
-                    int pos = pos_arq(t,0);
-                    fseek(fp,pos,SEEK_SET);
-                    char nome[TAM];
-                    fread(&nome,sizeof(char)*TAM,1,fp);
-                    fseek(fp, cont*4, SEEK_SET);
-                    int kek = -1;
-                    fwrite(&kek, sizeof(int), 1, fp);
-                    fseek(fp,0,SEEK_SET);
-                    int nchaves;
-                    fread(&nchaves,sizeof(int),1,fp);
-                    nchaves--;
-                    if (nchaves < 1) {
-                        nchaves = 1;
-                    }
-                    fseek(fp,0,SEEK_SET);
-                    fwrite(&nchaves,sizeof(int),1,fp);
-                    fclose(fp);
-                    reorganiza(t,no);
-                    insere_arv(t,nome,aux);
-                }
-                else if (aux > meio) {
-                    int pos = pos_arq(t,1);
-                    fseek(fp,pos,SEEK_SET);
-                    char nome[TAM];
-                    fread(&nome,sizeof(char)*TAM,1,fp);
-                    fseek(fp, cont*4, SEEK_SET);
-                    int kek = -1;
-                    fwrite(&kek, sizeof(int), 1, fp);
-                    fseek(fp,0,SEEK_SET);
-                    int nchaves;
-                    fread(&nchaves,sizeof(int),1,fp);
-                    nchaves--;
-                    if (nchaves < 1) {
-                        nchaves = 1;
-                    }
-                    fseek(fp,0,SEEK_SET);
-                    fwrite(&nchaves,sizeof(int),1,fp);
-                    fclose(fp);
-                    reorganiza(t,no);
-                    insere_arv(t,nome,aux);
-                }
-                if (cont == (2*t)-1 ) {
-                    fclose(fp);
-                    break;
-                }
-            }
-        }
-    }
-    else {
-        int i;
-        int aux, aux2;
-        fseek(fp, sizeof(int), SEEK_SET);
-        fread(&aux, sizeof(int), 1, fp);
-        fread(&aux2, sizeof(int), 1, fp);
-        for (i = 1; i < (2 * t) - 1; i++) {
-            if (ch > aux && (ch < aux2 || aux2 == -1)) {
-                int pos = pos_arq(t, i);
-                fseek(fp, pos, SEEK_SET);
-                char nome[TAM];
-                fread(&nome, sizeof(char) * TAM, 1, fp);
-                insere_arv(t, nome, ch);
-            }
-            else if (ch<aux) {
-                int pos = pos_arq(t, 0);
-                fseek(fp, pos, SEEK_SET);
-                char nome[TAM];
-                fread(&nome, sizeof(char) * TAM, 1, fp);
-                insere_arv(t, nome, ch);
-            }
-            else{
-                fseek(fp, sizeof(int) * i, SEEK_SET);
-                fread(&aux, sizeof(int), 1, fp);
-                fread(&aux2, sizeof(int), 1, fp);
-            }
-        }
-    }
- }
-*/
-
-/* void reorganiza(int t,char* no) {
-    FILE *fp =fopen(no,"rb+");
-    if (!fp) exit(1);
-    int vet[(2*t)-1];
-    fseek(fp,sizeof(int),SEEK_SET);
-    fread(&vet,sizeof(int),(2*t)-1,fp);
-    for (int i = 0; i <(2*t)-1 ; ++i) {
-        for (int j = i + 1; j < (2*t)-1; ++j) {
-            if (vet[i]==-1 && vet[j]!=-1) {
-                vet[i] = vet[j];
-                vet[j] = -1;
-            }
-        }
-    }
-    fseek(fp,sizeof(int),SEEK_SET);
-    fwrite(&vet,sizeof(int),(2*t)-1,fp);
-    fclose(fp);
-} */
-
-/* int descobreMeio(char* no,int ch,int t) {
-    FILE *fp = fopen(no,"rb");
-    if (!fp) return -1;
-    int meio[(2*t)-1], aux;
-    int i, trigger = 1;
-    for(i=0;i<3;i++) {
-        fseek(fp, i*sizeof(int) + 4, SEEK_SET);
-        fread(&aux, sizeof(int), 1, fp);
-        if (i==2) {
-            meio[i] = ch;
-        }
-        else{
-            meio[i] = aux;
-        }
-    }
-    qsort(meio,(2*t)-1,sizeof(int),comp);
-    return meio[((2*t)-1)/2];
-} */
-
-
 int comp(const void *elem1, const void *elem2) {
     int f = *((int*) elem1);
     int s = *((int*) elem2);
@@ -673,19 +401,19 @@ int comp(const void *elem1, const void *elem2) {
     return 0;
 }
 
-// DIVISÃƒO
+// DIVISÃO
 char* divide(int t, char *no, char *pai) {
     FILE *fp = fopen(no,"rb+");
     if (!fp);
     int i;
 
     if (!pai) {
-        // if Ã© raiz ou seja, pai == null
+        // if é raiz ou seja, pai == null
         //temos uma nova raiz
         //altura da arvore vai aumentar
         //arvore precisara ser reestruturada
         int vet[3];
-        int nchaves = 1;
+        int nchaves = 1, j;
         fseek(fp,sizeof(int),SEEK_SET);
         fread(vet,sizeof(int),3,fp);
 
@@ -695,7 +423,7 @@ char* divide(int t, char *no, char *pai) {
         vetDir[0] = vet[2];
         int vetRaiz[3];
         vetRaiz[0] = vet[1];
-        for (int j = 1; j < 3; ++j) {
+        for(j = 1; j < 3; ++j) {
             vetEsq[j] = -1;
             vetDir[j] = -1;
             vetRaiz[j] = -1;
@@ -719,7 +447,7 @@ char* divide(int t, char *no, char *pai) {
             strcat(str, ".dat");
             fwrite(&str, sizeof(char), TAM, fp);
         }
-        //novo nÃ³
+        //novo nó
         char novoNo[TAM], ci2[6];
         sprintf(ci2, "%05d", arqn);
         arqn++;
