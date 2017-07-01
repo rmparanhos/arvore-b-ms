@@ -13,8 +13,8 @@ void cria_arv(int t, char *nome);
 char* busca_arv(int t, char *no, int ch);
 void imprime_arv(int t, char *no, int andar);
 
-void insere_arv(int t, char *no, char *pai, int ch);
-void divisao_arv(int t, char *no, char *pai);
+void insere_arv(int t, char *no, int ch);
+void divide(int t, char *no, int ch);
 // void insere_nao_completo_arv(int t, char *nome, int ch);
 void insere_arv_agressivo(int t, char *raiz, int ch);
 void libera_arv(int t, char *raiz);
@@ -27,8 +27,6 @@ int pos_arq(int t, int i); // retorna a posição do nome do arquivo filho desejad
 void inicializa_arv(int t, char *nome, int raiz); // função só pra testar inicialização
 char* busca_pai(int t, char *no); //busca pai e retorna o próprio no caso seja raiz, retorna ERROR se o no não pertence a arvore
 char* busca_pai_aux(int t, char *aux, char *no); //auxiliar
-char* busca_avo(int t, char *no); //busca avo e retorna no caso não tenha avo
-
 
 int main(void) {
     int t, val, boolean;
@@ -39,7 +37,7 @@ int main(void) {
         printf("Deseja inicia-la com qual valor de t e qual valor de raiz?\n");
         scanf("%d",&t);
         scanf("%d",&val);
-        insere_arv(t,"arq00000.dat",NULL,val);
+        insere_arv(t,"arq00000.dat",val);
         FILE *fp = fopen(RAIZ,"wb");
         if(!fp)exit(1);
         strcpy(raiz,"arq00000.dat");
@@ -55,10 +53,11 @@ int main(void) {
         fread(&arqn, sizeof(int), 1, fp);
         fclose(fp);
     }
+    //divide(t, "arq00000.dat");
     while(1){
         printf("Digite 1 para inserir na arvore\n");
         printf("Digite 2 para imprimir a arvore\n");
-        printf("Digite 3 para deletar a arvore\n");
+        printf("Digite 3 para remover um elemento\n");
         printf("Digite 4 para limpar a arvore\n");
         printf("Digite 5 para busca um valor\n");
         printf("Digite qualquer outro valor para sair\n");
@@ -69,7 +68,7 @@ int main(void) {
             printf("Que valor voce deseja inserir? ");
             scanf("%d", &val);
             printf("\n");
-            insere_arv(t, raiz, NULL, val);
+            insere_arv(t, raiz, val);
             FILE *f1 = fopen(RAIZ,"rb");
             if(!f1)exit(1);
             fread(&raiz, sizeof(char), TAM, f1);
@@ -261,35 +260,6 @@ char* busca_pai_aux(int t, char *aux, char *no){
     return ERROR;
 }
 
-char* busca_avo(int t, char *no){
-    char nome[TAM], saida[TAM];
-    strcpy(nome, busca_pai(t, no));
-    if(!strcmp(nome, ERROR)){
-        //Deu merda
-        //Tem algum erro no busca_pai ou o no não pertence a arvore
-        return no;
-    }
-    if(!strcmp(nome, no)){
-        //Ele é a raiz e não tem pai;
-        return nome;
-    }else{
-        //Achou o pai!
-        //Agora buscar o pai do pai;
-        //Retorna ele mesmo se não tiver avo e for a raiz;
-        strcpy(saida, busca_pai(t, nome));
-        if(!strcmp(saida, ERROR)){
-            //Se entrar aqui, é pq o no não faz parte da arvore ou tem algum erro em um desses busca pai e avo
-            //retorna o próprio no, indicando que não tem avo
-            //se retornasse o "nome", que é um pai válido, não seria possível dizer se "nome" é avo ou não, fora dessa função
-            //seria preciso usar outro busca_pai;
-            //Lembrar de usar STRCMP com a saida dessa função, para verificar se é um avo ou não
-            return no;
-        }
-        //Achou o avo!
-        return saida;
-    }
-}
-
 // INICIALIZA
 void inicializa_arv(int t, char *nome, int raiz) {
     FILE *fp = fopen(nome, "wb");
@@ -402,238 +372,161 @@ int comp(const void *elem1, const void *elem2) {
 }
 
 // DIVISÃO
-char* divide(int t, char *no, char *pai) {
-    FILE *fp = fopen(no,"rb+");
-    if (!fp);
-    int i;
-
-    if (!pai) {
-        // if é raiz ou seja, pai == null
-        //temos uma nova raiz
-        //altura da arvore vai aumentar
-        //arvore precisara ser reestruturada
-        int vet[3];
-        int nchaves = 1, j;
-        fseek(fp,sizeof(int),SEEK_SET);
-        fread(vet,sizeof(int),3,fp);
-
-        int vetEsq[3];
-        vetEsq[0] = vet[0];
-        int vetDir[3];
-        vetDir[0] = vet[2];
-        int vetRaiz[3];
-        vetRaiz[0] = vet[1];
-        for(j = 1; j < 3; ++j) {
-            vetEsq[j] = -1;
-            vetDir[j] = -1;
-            vetRaiz[j] = -1;
-        }
-        //raiz original
-        fseek(fp,0,SEEK_SET);
-        fwrite(&nchaves,sizeof(int),1,fp);
-        fwrite(vetEsq,sizeof(int),3,fp);
-        int pos = pos_arq(t,2);
-        fseek(fp,pos,SEEK_SET);
-        char arq3[TAM],arq4[TAM];
-        fread(arq3,sizeof(char),TAM,fp);
-        fread(arq4,sizeof(char),TAM,fp);
-        fseek(fp,pos,SEEK_SET);
-        char str[TAM], ci[6];
-        for(i = 2; i < 2*t; i++) {
-            sprintf(ci, "%05d", arqn);
-            arqn++;
-            strcpy(str, "arq");
-            strcat(str, ci);
-            strcat(str, ".dat");
-            fwrite(&str, sizeof(char), TAM, fp);
-        }
-        //novo nó
-        char novoNo[TAM], ci2[6];
-        sprintf(ci2, "%05d", arqn);
-        arqn++;
-        strcpy(novoNo, "arq");
-        strcat(novoNo, ci2);
-        strcat(novoNo, ".dat");
-        FILE *fpNovo = fopen(novoNo,"wb+");
-        if(!fpNovo) exit(1);
-        nchaves;
-        fwrite(&nchaves,sizeof(int),1,fpNovo);
-        fwrite(vetDir,sizeof(int),3,fpNovo);
-        fwrite(arq3,sizeof(char),TAM,fpNovo);
-        fwrite(arq4,sizeof(char),TAM,fpNovo);
-        for(i = 2; i < 2*t; i++) {
-            sprintf(ci2, "%05d", arqn);
-            arqn++;
-            strcpy(str, "arq");
-            strcat(str, ci2);
-            strcat(str, ".dat");
-            fwrite(&str, sizeof(char), TAM, fpNovo);
-        }
-        //nova raiz
-        char novaRaiz[TAM], ci3[6];
-        sprintf(ci3, "%05d", arqn);
+void divide(int t, char *no, int ch) {
+    char str1[TAM], str2[TAM], ci[6];
+    sprintf(ci, "%05d", arqn);
+    arqn++;
+    strcpy(str1, "arq");
+    strcat(str1, ci);
+    strcat(str1, ".dat");
+    sprintf(ci, "%05d", arqn);
+    arqn++;
+    strcpy(str2, "arq");
+    strcat(str2, ci);
+    strcat(str2, ".dat");
+    inicializa_arv(t, str1, 0);
+    inicializa_arv(t, str2, 0);
+    FILE *ff1 = fopen(str1, "rb+");
+    FILE *ff2 = fopen(str2, "rb+");
+    FILE *fp = fopen(no, "rb");
+    if(!ff1 || !ff2 || !fp)exit(1);
+    int size = (t*2 -1)/2;
+    int i, vet[size];
+    fseek(fp, sizeof(int), SEEK_SET);
+    fread(&vet, sizeof(int), size, fp);
+    fwrite(&size, sizeof(int), 1, ff1);
+    fwrite(&vet, sizeof(int), size, ff1);
+    fseek(fp, sizeof(int), SEEK_CUR);
+    fread(&vet, sizeof(int), size, fp);
+    fwrite(&size, sizeof(int), 1, ff2);
+    fwrite(&vet, sizeof(int), size, ff2);
+    int pos = pos_arq(t, 0);
+    fseek(ff1, pos, SEEK_SET);
+    fseek(ff2, pos, SEEK_SET);
+    char temp[TAM];
+    for(i = 0; i < size+1; i++){
+    	fread(&temp, sizeof(char), TAM, fp);
+    	fwrite(&temp, sizeof(char), TAM, ff1);
+	}
+	for(i = 0; i < size+1; i++){
+    	fread(&temp, sizeof(char), TAM, fp);
+    	fwrite(&temp, sizeof(char), TAM, ff2);
+	}
+	fclose(ff1);
+	fclose(ff2);
+	//str1 = novo filho da esquerda
+	//str2 = novo filho da direita
+	fseek(fp, sizeof(int) + sizeof(int)*size, SEEK_SET);
+	int novoElem;
+	fread(&novoElem, sizeof(int), 1, fp);
+	fclose(fp);
+	strcpy(temp, busca_pai(t, no));
+	char raiz[TAM];
+	FILE *fsave = fopen(RAIZ, "rb+");
+	if(!fsave)exit(1);
+	fread(&raiz, sizeof(char), TAM, fsave);
+	if(!strcmp(raiz, no)){
+		char novaRaiz[TAM];
+		sprintf(ci, "%05d", arqn);
         arqn++;
         strcpy(novaRaiz, "arq");
-        strcat(novaRaiz, ci3);
+        strcat(novaRaiz, ci);
         strcat(novaRaiz, ".dat");
-        FILE *fpNovoRaiz = fopen(novaRaiz,"wb+");
-        if(!fpNovoRaiz) exit(1);
-        fwrite(&nchaves,sizeof(int),1,fpNovoRaiz);
-        fwrite(vetRaiz,sizeof(int),3,fpNovoRaiz);
-        fwrite(no,sizeof(char),TAM,fpNovoRaiz);
-        fwrite(novoNo,sizeof(char),TAM,fpNovoRaiz);
-        for(i = 2; i < 2*t; i++) {
-            sprintf(ci3, "%05d", arqn);
-            arqn++;
-            strcpy(str, "arq");
-            strcat(str, ci3);
-            strcat(str, ".dat");
-            fwrite(&str, sizeof(char), TAM, fpNovoRaiz);
-        }
-        fclose(fp);
-        fclose(fpNovo);
-        fclose(fpNovoRaiz);
-
-        FILE *fsave = fopen(RAIZ, "rb+");
-        if(!fsave)exit(1);
+        fseek(fsave, 0, SEEK_SET);
         fwrite(&novaRaiz, sizeof(char), TAM, fsave);
         fclose(fsave);
-
-        return novaRaiz;
-    }
-    else{
-        int nchaves;
-        fread(&nchaves, sizeof(int), 1, fp);
-        int vet[nchaves], aux[nchaves];
-        int zeroChaves = 0;
-
-        int i;
-        for (i = 0; i < nchaves; i++)
-            aux[i] = -1;
-
-        fread(vet, sizeof(int), nchaves, fp);
-        fseek(fp, 0, SEEK_SET);
-        fwrite(&zeroChaves,sizeof(int),1,fp);
-        fwrite(aux,sizeof(int),nchaves,fp);
-        fclose(fp);
-        FILE *fpai = fopen(pai,"rb+");
-        int nchavesPai;
-        fread(&nchavesPai,sizeof(int),1,fpai);
-        char filho[TAM];
-
-        for(i = 0; i < nchaves; i++) {
-            fp = fopen(no,"rb+");
-
-            if (i == nchaves/2) {
-                if (nchavesPai < 2*t - 1) {
-                    fclose(fp);
-
-                    insere_arv_agressivo(t, pai, vet[i]);
-                }
-
-                else {
-                    char avo[TAM];
-                    strcpy(avo,busca_avo(t,no));
-                    insere_arv(t, pai, avo, vet[i]); // avo precisa ser implementado
-                }
-            }
-
-            else if (i < nchaves/2) { //filho da esquerda do pai
-                int pos = pos_arq(t,nchavesPai);
-                fseek(fpai, pos, SEEK_SET);
-                fread(filho, sizeof(char), TAM, fpai);
-                fclose(fp);
-                insere_arv(t, filho, pai, vet[i]);
-            }
-
-            else { //filho da direita do pai
-                int pos = pos_arq(t, nchavesPai+1);
-                fseek(fpai, pos, SEEK_SET);
-                fread(filho,sizeof(char), TAM, fpai);
-                fclose(fp);
-                insere_arv(t, filho, pai, vet[i]);
-            }
-        }
-        char resp[TAM];
-        strcpy(resp,"nope");
-        return resp;
-    }
-}
-
-void insere_arv_agressivo(int t, char *raiz, int ch) {
-    FILE *fp = fopen(raiz,"rb+");
-    if (!fp) exit(1);
-    int nchaves;
-    fread(&nchaves, sizeof(int), 1, fp);
-    fseek(fp, sizeof(int), SEEK_SET);
-    int vet[nchaves+1];
-    fread(&vet, sizeof(int), nchaves, fp);
-    vet[nchaves] = ch;
-    qsort(vet, nchaves+1, sizeof(int), comp);
-    fseek(fp, sizeof(int), SEEK_SET);
-    fwrite(&vet, sizeof(int), nchaves+1, fp);
-    fseek(fp, 0, SEEK_SET);
+        inicializa_arv(t, novaRaiz, novoElem);
+        FILE *fnova = fopen(novaRaiz, "rb+");
+        if(!fnova)exit(1);
+        fseek(fnova, pos, SEEK_SET);
+        fwrite(&str1, sizeof(char), TAM, fnova);
+        fwrite(&str2, sizeof(char), TAM, fnova);
+        fclose(fnova);
+        remove(no);
+        return insere_arv(t, novaRaiz, ch);
+	}
+	//Talvez tenha erro aqui
+	fclose(fsave);
+	FILE *fpai = fopen(temp, "rb+");
+	if(!fpai)exit(1);
+	
+	int nchaves;
+	fread(&nchaves, sizeof(int), 1, fpai);
+	int vetor[nchaves+1];
+	fread(&vetor, sizeof(int), nchaves, fpai);
+    vetor[nchaves] = novoElem;
+    qsort(vetor, nchaves+1, sizeof(int), comp);
+    fseek(fpai, sizeof(int), SEEK_SET);
+    fwrite(&vetor, sizeof(int), nchaves+1, fpai);
     nchaves++;
-    fwrite(&nchaves, sizeof(int), 1, fp);
-    fclose(fp);
-    return;
-
+    fseek(fpai, 0, SEEK_SET);
+    fwrite(&nchaves, sizeof(int), 1, fpai);
+    
+    fseek(fpai, sizeof(int), SEEK_SET);
+	int aux;
+    for(i = 0; i < nchaves; i++){
+    	fread(&aux, sizeof(int), 1, fpai);
+    	if(aux == novoElem)break;
+	}
+	printf("%d\n", aux);
+	printf("%d\n", i);
+	if(i == nchaves-1){
+		pos = pos_arq(t, i);
+	    fseek(fpai, pos, SEEK_SET);
+	    fwrite(&str1, sizeof(char), TAM, fpai);
+	    fwrite(&str2, sizeof(char), TAM, fpai);
+	    fseek(fpai, sizeof(int), SEEK_SET);
+	}else{
+		//O ERRO ESTÁ AQUI
+		pos = pos_arq(t, 0);
+		char mat[nchaves+1][TAM];
+		char m[TAM]; 
+		int j;
+		for(j = 0; j < nchaves+1;j++){
+			fread(&m, sizeof(char), TAM, fpai);
+			strcpy(mat[j],m);
+		}
+		pos = pos_arq(t, 0);
+		fseek(fpai, pos, SEEK_SET);
+		strcpy(mat[i], str1);
+		for(j=nchaves;j > i;j--){
+			strcpy(mat[j],mat[j-1]);
+		}
+		strcpy(mat[i+1],str2);
+		for(i = 0;i < nchaves+1;i++){
+			strcpy(m, mat[i]);
+			fwrite(&m, sizeof(char), TAM, fpai);
+		}
+		//O ERRO ESTÁ AQUI EM CIMA ^^^^^^^^^^
+	}
+	for(i = 0; i < nchaves; i++){
+		fread(&aux, sizeof(int), 1, fpai);
+		if(ch < aux)break;
+	}
+	pos = pos_arq(t, i);
+	fseek(fpai, pos, SEEK_SET);
+	fread(&temp, sizeof(char), TAM, fpai);
+	fclose(fpai);
+	remove(no);
+	return insere_arv(t, temp, ch);
 }
 
 // INSERE
-void insere_arv(int t, char *raiz, char*pai, int ch) {
+void insere_arv(int t, char *raiz, int ch){
     FILE *fp = fopen(raiz, "rb+");
-    if (!fp) {
+    if(!fp){
         inicializa_arv(t, raiz, ch);
         return;
     }
     int nchaves;
     fread(&nchaves, sizeof(int), 1, fp);
-    if (nchaves == (t * 2)- 1) {
-        fclose(fp);
-        char novoPai[TAM];
-        strcpy(novoPai,divide(t, raiz, pai));
-        int i;
-        FILE *fpai;
-        if (!strcmp(novoPai,"nope")) {
-            fpai = fopen(pai, "rb+");
-            if (!fpai) exit(1);
-        }
-        else{
-            fpai = fopen(novoPai,"rb+");
-            if (!fpai) exit(1);
-        }
-        fread(&nchaves,sizeof(int),1,fpai);
-        int vet[nchaves], pos;
-        fread(&vet, sizeof(int), nchaves, fpai);
-        for(i = 0; i < nchaves; i++) {
-            if (ch < vet[i]) {
-                pos = pos_arq(t, i);
-                fseek(fpai, pos, SEEK_SET);
-                char no[TAM];
-                fread(&no, sizeof(char), TAM, fpai);
-                fclose(fpai);
-                insere_arv(t, no, pai, ch);
-                return;
-            }
-
-        }
-        pos = pos_arq(t, i);
-        fseek(fpai, pos, SEEK_SET);
-        char no[TAM];
-        fread(&no, sizeof(char), TAM, fpai);
-        fclose(fpai);
-        insere_arv(t, no, pai, ch);
-        return;
-        insere_arv( t, raiz, pai, ch);
-        return;
-    }
-
     fclose(fp);
-
-    if (eFolha(t, raiz)) {
-        fp = fopen(raiz, "rb+");
-        if (!fp)exit(1);
+	if(nchaves == (t * 2)- 1){
+        return divide(t, raiz, ch);        
+    }
+    if(eFolha( t, raiz)){
+        fp = fopen( raiz, "rb+");
+        if(!fp)exit(1);
         fseek(fp, sizeof(int), SEEK_SET);
         int vet[nchaves+1];
         fread(&vet, sizeof(int), nchaves, fp);
@@ -646,34 +539,30 @@ void insere_arv(int t, char *raiz, char*pai, int ch) {
         fwrite(&nchaves, sizeof(int), 1, fp);
         fclose(fp);
         return;
-    }
-
-    else {
-        int i;
+    }else{
+        int i, aux1, aux2;
         fp = fopen( raiz, "rb+");
-        if (!fp) exit(1);
-
+        if(!fp)exit(1);
         fseek(fp, sizeof(int), SEEK_SET);
         int vet[nchaves], pos;
         fread(&vet, sizeof(int), nchaves, fp);
-        for(i = 0; i < nchaves; i++) {
-            if (ch < vet[i]) {
+        for(i = 0; i < nchaves; i++){
+            if(ch < vet[i]){
                 pos = pos_arq( t, i);
                 fseek(fp, pos, SEEK_SET);
                 char no[TAM];
                 fread(&no, sizeof(char), TAM, fp);
                 fclose(fp);
-                insere_arv( t, no, raiz, ch);
+                insere_arv( t, no, ch);
                 return;
             }
-
         }
         pos = pos_arq( t, i);
         fseek(fp, pos, SEEK_SET);
         char no[TAM];
         fread(&no, sizeof(char), TAM, fp);
         fclose(fp);
-        insere_arv( t, no, raiz, ch);
+        insere_arv( t, no, ch);
         return;
     }
 }
