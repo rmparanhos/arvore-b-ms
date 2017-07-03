@@ -4,7 +4,7 @@
 
 int arqn = 1;
 #define TAM 13
-#define ERROR "arqnotfound-" // utilizado para retornar nas fun��es no lugar de NULL
+#define ERROR "arqnotfound-" // utilizado para retornar nas funçoes no lugar de NULL
 #define RAIZ "arqsaved.dat"
 
 int comp(const void *elem1, const void *elem2);
@@ -20,12 +20,12 @@ void insere_arv_agressivo(int t, char *raiz, int ch);
 void libera_arv(int t, char *raiz);
 
 void lerNoC(int t, char *nome); // printa tudo dentro do arquivo "nome"
-void lerNoS(int t, char *nome,int andar); // printa s� as chaves dentro do arquivo "nome"
+void lerNoS(int t, char *nome,int andar); // printa so as chaves dentro do arquivo "nome"
 int eFolha(int t, char *no);
 void limpa_arq(char *nome); // reseta o arquivo, e deixa pronto pra ser usado de novo
-int pos_arq(int t, int i); // retorna a posi��o do nome do arquivo filho desejado
-void inicializa_arv(int t, char *nome, int raiz); // fun��o s� pra testar inicializa��o
-char* busca_pai(int t, char *no); //busca pai e retorna o pr�prio no caso seja raiz, retorna ERROR se o no n�o pertence a arvore
+int pos_arq(int t, int i); // retorna a posicao do nome do arquivo filho desejado
+void inicializa_arv(int t, char *nome, int raiz); // funcaoo so pra testar inicializacao
+char* busca_pai(int t, char *no); //busca pai e retorna o proprio no caso seja raiz, retorna ERROR se o no nao pertence a arvore
 char* busca_pai_aux(int t, char *aux, char *no); //auxiliar
 
 int main(void) {
@@ -113,7 +113,7 @@ int main(void) {
     }
 }
 
-// LER N�
+// LER NO
 void lerNoC(int t, char *nome) {
     FILE *fp = fopen(nome, "rb");
     if (!fp) exit(1);
@@ -135,7 +135,7 @@ void lerNoC(int t, char *nome) {
 
 
 
-// LER N� (S� AS CHAVES)
+// LER NO (SO AS CHAVES)
 void lerNoS(int t, char *nome,int andar) {
     FILE *fp = fopen(nome, "rb");
     if (!fp) return;
@@ -187,7 +187,7 @@ void limpa_arq(char *nome) {
     remove(nome);
 }
 
-// POSI��O NO ARQUIVO
+// POSICAO NO ARQUIVO
 int pos_arq(int t, int i) {
     int pos = 2*t * sizeof(int);
     return pos + (TAM * i * sizeof(char));
@@ -256,7 +256,7 @@ char* busca_pai_aux(int t, char *aux, char *no){
             return saida;
         }
     }
-    //Isso pode acontecer, significa que n�o foi encontrado nos filhos de baixo
+    //Isso pode acontecer, significa que nao foi encontrado nos filhos de baixo
     return ERROR;
 }
 
@@ -380,7 +380,7 @@ int comp(const void *elem1, const void *elem2) {
     return 0;
 }
 
-// DIVIS�O
+// DIVISAO
 void divide(int t, char *no, int ch) {
     char str1[TAM], str2[TAM], ci[6];
     sprintf(ci, "%05d", arqn);
@@ -486,7 +486,7 @@ void divide(int t, char *no, int ch) {
         fwrite(&str2, sizeof(char), TAM, fpai);
         fseek(fpai, sizeof(int), SEEK_SET);
     }else{
-        //O ERRO EST� AQUI (ph) - resolvido (ff)
+        //O ERRO ESTA AQUI (ph) - resolvido (ff)
         pos = pos_arq(t, 0);
         char mat[nchaves+1][TAM];
         char m[TAM];
@@ -507,7 +507,7 @@ void divide(int t, char *no, int ch) {
             strcpy(m, mat[i]);
             fwrite(&m, sizeof(char), TAM, fpai);
         }
-        //O ERRO EST� AQUI EM CIMA ^^^^^^^^^^ (ph)- resolvido(ff)
+        //O ERRO ESTA AQUI EM CIMA ^^^^^^^^^^ (ph)- resolvido(ff)
     }
     fseek(fpai,sizeof(int),SEEK_SET); //faltou isso(ff)
     for(i = 0; i < nchaves; i++){
