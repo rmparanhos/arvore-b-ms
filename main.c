@@ -80,9 +80,8 @@ int main(void) {
             printf("Nao implemntado\n");
         }else if(boolean == 4) {
             libera_arv(t, raiz);
-            limpa_arq(RAIZ);
-            _fcloseall();
             limpa_arq(raiz);
+            limpa_arq(RAIZ);
             break;
         }else if(boolean == 5){
             printf("Que valor voce deseja buscar? ");
@@ -196,38 +195,47 @@ int pos_arq(int t, int i) {
 char* busca_pai(int t, char *no){
     FILE *fsave = fopen(RAIZ, "rb");
     if(!fsave)exit(1);
+    char *saida = (char*)malloc(sizeof(char)*TAM);
     char raiz[TAM], nome[TAM];
     fread(&raiz, sizeof(char), TAM, fsave);
     fclose(fsave);
     if(!strcmp(raiz, no)){
-        return no;
+        strcpy(saida, no);
+        return saida;
     }
     FILE *fp = fopen(raiz, "rb");
     if(!fp)exit(1);
     int pos, nchaves, i;
+    fseek(fp, 0, SEEK_SET);
     fread(&nchaves, sizeof(int), 1, fp);
-    for(i = 0;i <= nchaves; i++){
+    for(i = 0;i < t*2; i++){
         pos = pos_arq(t, i);
         fseek(fp, pos, SEEK_SET);
         fread(&nome, sizeof(char), TAM, fp);
         if(!strcmp(nome, no)){
             fclose(fp);
-            return raiz;
+            strcpy(saida, raiz);
+            return saida;
         }
     }
-    char saida[TAM];
+    char str[TAM];
     for(i = 0;i <= nchaves; i++){
         pos = pos_arq(t, i);
         fseek(fp, pos, SEEK_SET);
         fread(&nome, sizeof(char), TAM, fp);
+        fclose(fp);
         strcpy(saida,busca_pai_aux(t, nome, no));
-        if(strcmp(saida, ERROR)){
+        fp = fopen(raiz, "rb");
+        if(strcmp(str, ERROR)){
             fclose(fp);
+            strcpy(saida, str);
             return saida;
         }
     }
     //Isso nunca pode acontecer se no faz parte da arvore
-    return ERROR;
+    fclose(fp);
+    strcpy(saida, ERROR);
+    return saida;
 }
 
 char* busca_pai_aux(int t, char *aux, char *no){
@@ -235,6 +243,7 @@ char* busca_pai_aux(int t, char *aux, char *no){
     if(!fp)return ERROR;
     int pos, nchaves, i;
     char nome[TAM];
+    char *saida = (char*)malloc(sizeof(char)*TAM);
     fread(&nchaves, sizeof(int), 1, fp);
     for(i = 0;i <= nchaves; i++){
         pos = pos_arq(t, i);
@@ -242,22 +251,28 @@ char* busca_pai_aux(int t, char *aux, char *no){
         fread(&nome, sizeof(char), TAM, fp);
         if(!strcmp(nome, no)){
             fclose(fp);
-            return aux;
+            strcpy(saida, aux);
+            return saida;
         }
     }
-    char saida[TAM];
+    char str[TAM];
     for(i = 0;i <= nchaves; i++){
         pos = pos_arq(t, i);
         fseek(fp, pos, SEEK_SET);
         fread(&nome, sizeof(char), TAM, fp);
-        strcpy(saida,busca_pai_aux(t, nome, no));
-        if(strcmp(saida, ERROR)){
+        fclose(fp);
+        strcpy(str,busca_pai_aux(t, nome, no));
+        fp = fopen(aux, "rb");
+        if(strcmp(str, ERROR)){
             fclose(fp);
+            strcpy(saida, str);
             return saida;
         }
     }
     //Isso pode acontecer, significa que nao foi encontrado nos filhos de baixo
-    return ERROR;
+    fclose(fp);
+    strcpy(saida, ERROR);
+    return saida;
 }
 
 // INICIALIZA
@@ -335,6 +350,7 @@ char *busca_arv(int t, char *no, int ch) { // no = raiz
     fseek(fp, pos, SEEK_SET);
     char str[TAM];
     fread(&str, sizeof(char), TAM, fp);
+    fclose(fp);
     return busca_arv(t , str, ch);
 }
 
