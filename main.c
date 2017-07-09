@@ -224,7 +224,7 @@ char* busca_pai(int t, char *no){
         fseek(fp, pos, SEEK_SET);
         fread(&nome, sizeof(char), TAM, fp);
         fclose(fp);
-        strcpy(saida,busca_pai_aux(t, nome, no));
+        strcpy(str,busca_pai_aux(t, nome, no));
         fp = fopen(raiz, "rb");
         if(strcmp(str, ERROR)){
             fclose(fp);
@@ -234,8 +234,6 @@ char* busca_pai(int t, char *no){
     }
     //Isso nunca pode acontecer se no faz parte da arvore
     fclose(fp);
-    strcpy(saida, ERROR);
-    return saida;
 }
 
 char* busca_pai_aux(int t, char *aux, char *no){
@@ -474,7 +472,6 @@ void divide(int t, char *no, int ch) {
     fclose(fsave);
     FILE *fpai = fopen(temp, "rb+");
     if(!fpai)exit(1);
-
     int nchaves;
     fread(&nchaves, sizeof(int), 1, fpai);
     int vetor[nchaves+1];
