@@ -77,7 +77,7 @@ int main(void) {
             imprime_arv(t, raiz, 0);
         }else if(boolean == 3){
             //deleta arvore
-            printf("Nao implemntado\n");
+            printf("Nao implementado\n");
         }else if(boolean == 4) {
             libera_arv(t, raiz);
             limpa_arq(raiz);
